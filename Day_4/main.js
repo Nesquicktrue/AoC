@@ -11,23 +11,35 @@ const boardsTemp = fileBoards.map(item => item.split(" "));
 // volaná čísla uložím do winnerIndexes[] včetně souřadnic X,Y a čísla boardu
 const winnerIndexes = []; 
 
+// čísla Boardů, které už dohrály
+let completeBoards = []
+
 // vítezná Array 
 // [řádek ve vítězné Board, sloupec ve vítězné Board,
 //       poslední vítězné číslo ,číslo vítězné Board]
 let winner = []; 
 
 // volané číslo uložím do nové array a přidám k němu souřadnice X,Y a číslo boardu 
-function getWinnerIndexes() {
+function getCallNumIndexes() {
     for (let l=0 ; l<fileInputs.length ; l++) {
         for (let k=0 ; k<boardsTemp.length ; k++) {
             if (boardsTemp[k].includes(fileInputs[l])) {
                 num = boardsTemp[k].indexOf(fileInputs[l])
                 // zjišťuji board number
                 boardNum = Math.floor(k/5);
+                // přidávám do seznamu volaných čísel
                 winnerIndexes.push([k,num,fileInputs[l],boardNum])
+                // zjišťuji jestli nějaká Board nevyhrála
                 if (checkWinner(k,num,fileInputs[l],boardNum) === true) {
                     countScore(winner);
-                    return
+                    // konec hry
+                    if (completeBoards.length === boardsTemp.length/5){
+                        let first = completeBoards[0];
+                        let last = completeBoards[completeBoards.length-1];
+                        console.log(`Winner Board number: ${first[0]+1}, score: ${first[1]}, last called number: ${first[2]}`)
+                        console.log(`Last Board number: ${last[0]+1}, score: ${last[1]}, last called number: ${last[2]}`)
+                        return
+                    }
                 }
             }
         }
@@ -50,7 +62,7 @@ function checkWinner(verticalIndex, horizontalIndex, lastNum, boardNum) {
                 }
             };
         // shoda na sloupci, zde musím navíc kontrolovat, že jsou ze stejného boardu 
-             if (winnerIndexes[m][1]===horizontalIndex && winnerIndexes[m][2]===boardNum) {
+             if (winnerIndexes[m][1]===horizontalIndex && winnerIndexes[m][3]===boardNum) {
                 horizontalCount++;
                 if (horizontalCount === 5) {
                     // [řádek ve vítězné Board, sloupec ve vítězné Board,
@@ -92,24 +104,33 @@ function getWinnerBoard(winner) {
 
 function countScore(winner) {
     let winnerBoard = getWinnerBoard(winner)
-    
+
     //součet celé vítezné Board
     let winnerBoardSum = 0;
     for (row of winnerBoard) {
-       winnerBoardSum += row.reduce((a,b) => parseInt(a) + parseInt(b));
+        winnerBoardSum += row.reduce((a,b) => parseInt(a) + parseInt(b));
     }
     
     //součet volaných čísel z vítezné board
     let calledNumsFromWinner = [];
     for (calledNum of winnerIndexes) {
-        if (calledNum[3] == winner[3]) {
+        if (calledNum[3] === winner[3]) {
             calledNumsFromWinner.push(calledNum[2])
         }
     }
     let calledNumsFromWinnerSum = calledNumsFromWinner.reduce((a,b) => parseInt(a) + parseInt(b)) 
-
-    //výsledek
-    console.log((winnerBoardSum - calledNumsFromWinnerSum) * parseInt(winner[2]))
+    
+    //sestavuji array výsledků všech Boardů
+    if ( completeBoards.some((a) => a.includes(winner[3])) ) {
+        0
+    } else {
+        let score = (winnerBoardSum - calledNumsFromWinnerSum) * parseInt(winner[2])
+        // [číslo Board, score, poslední volané číslo]
+        completeBoards.push( [ winner[3], score, winner[2] ] )
+    }
+    
 }
 
-console.log(getWinnerIndexes())
+getCallNumIndexes()
+
+
