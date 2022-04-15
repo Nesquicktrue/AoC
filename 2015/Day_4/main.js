@@ -2,15 +2,18 @@ const md5 = require("md5");
 
 input = "ckczppom"
 
+//na uložení aktuálního HASH
 let fiveZ
 let sixZ
+
 let indexFive
 let indexSix
 
+//ukládám aktuální nejnižší
 let previousFive = md5(input)
 let previousSix = md5(input)
 
-// PART1
+//PART1
 for (let i=0; i<100000; i++) {
     fiveZ = md5(input+i)
     if (fiveZ < previousFive) {
@@ -19,7 +22,7 @@ for (let i=0; i<100000; i++) {
     }
 }
 
-// PART2
+//PART2
 for (let j=0; j<1000000; j++) {
     sixZ = md5(input+j)
     if (sixZ < previousSix) {
@@ -30,5 +33,6 @@ for (let j=0; j<1000000; j++) {
 
 console.log(`PART1 - leading 5 zeros is: ${input+indexFive}`)
 console.log(`HASH: ${previousFive}`)
+
 console.log(`PART2 - leading 6 zeros is: ${input+indexSix}`)
 console.log(`HASH: ${previousSix}`)
